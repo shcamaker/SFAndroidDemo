@@ -3,8 +3,11 @@ package com.example.roomdemo;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.room.Room;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,18 +20,18 @@ public class MainActivity extends AppCompatActivity {
     WordDao wordDao;
     TextView textView;
     Button buttonInsert, buttonDelete, buttonUpdate, buttonClear;
+    WordViewModel wordViewModel;
 
     LiveData<List<Word>> allWordsLive;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        wordDatabase = Room.databaseBuilder(this, WordDatabase.class, "word_database").allowMainThreadQueries().build();
-        wordDao = wordDatabase.getWordDao();
+//        myViewModel = ViewModelProviders.of(this,factory).get(MyViewModel.class);
+        wordViewModel =ViewModelProviders.of(this).get(WordViewModel.class);
         textView = findViewById(R.id.textView);
-        allWordsLive = wordDao.getAllWords();
 
-        allWordsLive.observe(this, new Observer<List<Word>>() {
+        wordViewModel.getAllWordsLive().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
                 StringBuilder text = new StringBuilder();
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Word word1 = new Word("Hello", "你好");
                 Word word2 = new Word("World", "世界");
-                wordDao.insertWords(word1, word2);
+                wordViewModel.insertWords(word1, word2);
             }
         });
 
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Word word = new Word("aa", "bb");
                 word.setId(30);
-                wordDao.deleteWords(word);
+                wordViewModel.deleteWords(word);
             }
         });
 
@@ -66,15 +69,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Word word = new Word("Thanks", "谢谢");
                 word.setId(29);
-                wordDao.updateWords(word);
+                wordViewModel.updateWords(word);
             }
         });
 
         buttonClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                wordDao.deleteAllWords();
+                wordViewModel.deleteAllWords();
             }
         });
     }
+
+
 }
