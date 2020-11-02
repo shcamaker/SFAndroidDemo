@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import java.util.List;
 
@@ -17,7 +19,8 @@ public class MainActivity extends AppCompatActivity {
     Button buttonInsert, buttonDelete;
     WordViewModel wordViewModel;
     RecyclerView recyclerView;
-    MyAdapter myAdapter;
+    Switch aSwitch;
+    MyAdapter myAdapter1, myAdapter2;
 
 
     LiveData<List<Word>> allWordsLive;
@@ -27,14 +30,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setUpRecyclerView();
+        aSwitch = findViewById(R.id.switch1);
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    recyclerView.setAdapter(myAdapter2);
+                } else {
+                    recyclerView.setAdapter(myAdapter1);
+                }
+            }
+        });
 
         wordViewModel =ViewModelProviders.of(this).get(WordViewModel.class);
 
         wordViewModel.getAllWordsLive().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
-                myAdapter.setAllWords(words);
-                myAdapter.notifyDataSetChanged();
+                myAdapter1.setAllWords(words);
+                myAdapter1.notifyDataSetChanged();
+                myAdapter2.setAllWords(words);
+                myAdapter2.notifyDataSetChanged();
             }
         });
         buttonInsert = findViewById(R.id.button1);
@@ -85,9 +101,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setUpRecyclerView() {
         recyclerView = findViewById(R.id.recyclerView);
-        myAdapter = new MyAdapter();
+        myAdapter1 = new MyAdapter(false);
+        myAdapter2 = new MyAdapter(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(myAdapter);
+        recyclerView.setAdapter(myAdapter1);
     }
 
 }
