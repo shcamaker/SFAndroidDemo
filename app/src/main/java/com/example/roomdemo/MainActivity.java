@@ -3,55 +3,71 @@ package com.example.roomdemo;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.room.Room;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    WordDatabase wordDatabase;
-    WordDao wordDao;
-    TextView textView;
-    Button buttonInsert, buttonDelete, buttonUpdate, buttonClear;
+    Button buttonInsert, buttonDelete;
     WordViewModel wordViewModel;
+    RecyclerView recyclerView;
+    MyAdapter myAdapter;
+
 
     LiveData<List<Word>> allWordsLive;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        myViewModel = ViewModelProviders.of(this,factory).get(MyViewModel.class);
+
+        setUpRecyclerView();
+
         wordViewModel =ViewModelProviders.of(this).get(WordViewModel.class);
-        textView = findViewById(R.id.textView);
 
         wordViewModel.getAllWordsLive().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
-                StringBuilder text = new StringBuilder();
-                for (Word word: words) {
-                    text.append(word.getId()).append("、").append(word.getWord()).append(":").append(word.getChinese()).append("\n");
-                }
-                textView.setText(text);
+                myAdapter.setAllWords(words);
+                myAdapter.notifyDataSetChanged();
             }
         });
         buttonInsert = findViewById(R.id.button1);
         buttonDelete = findViewById(R.id.button2);
-        buttonUpdate = findViewById(R.id.button3);
-        buttonClear = findViewById(R.id.button4);
+
 
         buttonInsert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Word word1 = new Word("Hello", "你好");
                 Word word2 = new Word("World", "世界");
-                wordViewModel.insertWords(word1, word2);
+                String[] english = {
+                        "hello",
+                        "world",
+                        "android",
+                        "ios",
+                        "english",
+                        "fitness",
+                        "breakfast"
+                };
+                String[] chinese = {
+                        "你好",
+                        "世界",
+                        "安卓",
+                        "苹果",
+                        "英语",
+                        "健身",
+                        "早餐"
+                };
+                for (int i = 0;i<english.length;i++) {
+                    wordViewModel.insertWords(new Word(english[i],chinese[i]));
+                }
+
             }
         });
 
@@ -64,22 +80,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Word word = new Word("Thanks", "谢谢");
-                word.setId(29);
-                wordViewModel.updateWords(word);
-            }
-        });
 
-        buttonClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                wordViewModel.deleteAllWords();
-            }
-        });
     }
 
+    private void setUpRecyclerView() {
+        recyclerView = findViewById(R.id.recyclerView);
+        myAdapter = new MyAdapter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(myAdapter);
+    }
 
 }
