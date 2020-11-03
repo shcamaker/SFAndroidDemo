@@ -15,6 +15,17 @@ public class Word {
     @ColumnInfo(name = "chinese")
     private String chinese;
 
+    @ColumnInfo(name = "test")
+    private String test;
+
+    public String getTest() {
+        return test;
+    }
+
+    public void setTest(String test) {
+        this.test = test;
+    }
+
     public Word(String word, String chinese) {
         this.word = word;
         this.chinese = chinese;
