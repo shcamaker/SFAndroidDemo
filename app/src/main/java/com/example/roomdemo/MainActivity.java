@@ -3,6 +3,7 @@ package com.example.roomdemo;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        setUpRecyclerView();
+        wordViewModel = new ViewModelProvider(this).get(WordViewModel.class);
+        setUpRecyclerView(wordViewModel);
         aSwitch = findViewById(R.id.switch1);
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -42,14 +43,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        wordViewModel =ViewModelProviders.of(this).get(WordViewModel.class);
 
         wordViewModel.getAllWordsLive().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
                 myAdapter1.setAllWords(words);
-                myAdapter1.notifyDataSetChanged();
                 myAdapter2.setAllWords(words);
+                myAdapter1.notifyDataSetChanged();
                 myAdapter2.notifyDataSetChanged();
             }
         });
@@ -99,10 +99,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setUpRecyclerView() {
+    private void setUpRecyclerView(WordViewModel viewModel) {
         recyclerView = findViewById(R.id.recyclerView);
-        myAdapter1 = new MyAdapter(false);
-        myAdapter2 = new MyAdapter(true);
+        myAdapter1 = new MyAdapter(false, viewModel);
+        myAdapter2 = new MyAdapter(true, viewModel);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(myAdapter1);
     }
